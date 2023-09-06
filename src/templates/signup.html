@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sign Up</title>
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+  </head>
+  <body>
+    <form action="/signup" method="POST">
+      <input type="email" name="email" placeholder="Email" />
+      <input type="password" name="password" placeholder="Password" />
+      <input type="text" name="name" placeholder="Name" />
+      <input type="text" name="institution" placeholder="Institution" />
+      <input
+        type="text"
+        name="profile_description"
+        placeholder="Profile Description"
+      />
+      <button type="submit">Sign Up</button>
+    </form>
+  </body>
+</html>

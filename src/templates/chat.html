@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>LLM Chat App</title>
+  </head>
+  <body>
+    <h1>🤗💬 LLM Chat App</h1>
+
+    <form
+      enctype="multipart/form-data"
+      action="javascript:void(0);"
+      id="pdfUploadForm"
+    >
+      <input type="file" name="pdf" id="pdf" accept=".pdf" />
+      <button type="submit">Upload PDF</button>
+    </form>
+
+    <input
+      type="text"
+      id="query"
+      placeholder="Ask questions about your PDF here..."
+    />
+    <button onclick="askQuestion()">Ask</button>
+
+    <div id="response"></div>
+
+    <script>
+      const apiUrl = "http://127.0.0.1:5000/chat"; // replace with your Flask app's address
+
+      document
+        .getElementById("pdfUploadForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const formData = new FormData();
+          const pdfFile = document.getElementById("pdf").files[0];
+          formData.append("pdf", pdfFile);
+
+          // Store the uploaded PDF in the sessionStorage
+          const reader = new FileReader();
+          reader.readAsDataURL(pdfFile);
+          reader.onloadend = function () {
+            sessionStorage.setItem("uploadedPdf", reader.result);
+          };
+        });
+
+      function askQuestion() {
+        const query = document.getElementById("query").value;
+        if (sessionStorage.getItem("uploadedPdf") && query) {
+          const pdfData = sessionStorage.getItem("uploadedPdf").split(",")[1];
+          const payload = {
+            pdf: pdfData,
+            query: query,
+          };
+
+          fetch(apiUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              document.getElementById("response").innerText = data.response;
+            })
+            .catch((error) => console.error("Error:", error));
+        }
+      }
+    </script>
+  </body>
+</html>

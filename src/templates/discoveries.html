@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Discoveries</title>
+    <style>
+      .hidden {
+        display: none;
+      }
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      li {
+        clear: both;
+      }
+      li button {
+        appearance: none;
+        border: none;
+        outline: none;
+        color: red;
+        float: right;
+        cursor: pointer;
+        font-size: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Discoveries</h1>
+    <ul id="discoveries">
+      {% for discovery in discoveries %}
+      <li>
+        <a href="{{ discovery.paper_link }}">{{ discovery.paper_title }}</a>
+        <p>{{ discovery.caption }}</p>
+        <button class="delete-button" data-id="{{ discovery.id }}">
+          &cross;
+        </button>
+        <button class="edit-button" data-id="{{ discovery.id }}">Edit</button>
+      </li>
+      {% endfor %}
+    </ul>
+    <div id="error" class="hidden">Something went wrong!</div>
+
+    <h2>Add a new discovery</h2>
+    <form action="/discoveries/add" method="POST">
+      <label for="caption">Caption:</label>
+      <input type="text" id="caption" name="caption" required /><br />
+
+      <label for="paper_title">Paper Title:</label>
+      <input type="text" id="paper_title" name="paper_title" required /><br />
+
+      <label for="paper_link">Paper Link:</label>
+      <input type="url" id="paper_link" name="paper_link" required /><br />
+
+      <button type="submit">Add Discovery</button>
+    </form>
+
+    <!-- Edit form -->
+    <div id="edit-form-container" class="hidden">
+      <h2>Edit Discovery</h2>
+      <form id="edit-form">
+        <input type="hidden" id="edit-id" name="id" />
+        <label for="edit-caption">Edit Caption:</label>
+        <input type="text" id="edit-caption" name="caption" />
+        <button type="submit">Save</button>
+      </form>
+    </div>
+
+    <script>
+      // Delete buttons
+      const delete_buttons = document.querySelectorAll(".delete-button");
+      delete_buttons.forEach((button) => {
+        button.onclick = function (e) {
+          const discoveryId = e.target.dataset["id"];
+          fetch(`/discoveries/delete/${discoveryId}`, {
+            method: "DELETE",
+          })
+            .then(() => {
+              e.target.parentElement.remove();
+            })
+            .catch(() => {
+              document.getElementById("error").className = "";
+            });
+        };
+      });
+
+      // Edit buttons
+      const edit_buttons = document.querySelectorAll(".edit-button");
+      edit_buttons.forEach((button) => {
+        button.onclick = function (e) {
+          const discoveryId = e.target.dataset["id"];
+          fetch(`/discoveries/${discoveryId}`, {
+            method: "GET",
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              document.getElementById("edit-id").value = data.id;
+              document.getElementById("edit-caption").value = data.caption;
+              document.getElementById("edit-form-container").className = "";
+            });
+        };
+      });
+
+      // Submitting the edit form
+      document.getElementById("edit-form").onsubmit = function (e) {
+        e.preventDefault();
+        const formData = {
+          id: document.getElementById("edit-id").value,
+          caption: document.getElementById("edit-caption").value,
+        };
+
+        fetch(`/discoveries/edit/${formData.id}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.message === "Successfully updated") {
+              document
+                .querySelector(`[data-id="${id}"]`)
+                .parentElement.querySelector("p").textContent = caption;
+            }
+          })
+          .catch((error) => {
+            console.error("Error updating discovery:", error);
+          });
+      };
+    </script>
+  </body>
+</html>

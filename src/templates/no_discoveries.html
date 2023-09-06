@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Discoveries</title>
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+  </head>
+  <body>
+    <h1>No Related Discoveries Found</h1>
+
+    <!-- Form to add a new discovery -->
+    <h2>Add a new discovery</h2>
+    <form action="/discoveries/add" method="POST">
+      <label for="caption">Caption:</label>
+      <input type="text" id="caption" name="caption" required /><br />
+
+      <label for="paper_title">Paper Title:</label>
+      <input type="text" id="paper_title" name="paper_title" required /><br />
+
+      <label for="paper_link">Paper Link:</label>
+      <input type="url" id="paper_link" name="paper_link" required /><br />
+
+      <button type="submit">Add Discovery</button>
+    </form>
+  </body>
+</html>
